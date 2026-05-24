@@ -1,18 +1,9 @@
-from fastapi import FastAPI
-
-app = FastAPI()
+from fastapi import UploadFile, File
 
 
-@app.get("/")
-def home():
-    return {"message": "DeepTrace AI API Running"}
-
-
-@app.get("/health")
-def health_check():
-    return {"status": "healthy"}
-
-
-@app.get("/version")
-def version():
-    return {"version": "v0.1"}
+@app.post("/upload")
+async def upload_video(file: UploadFile = File(...)):
+    return {
+        "filename": file.filename,
+        "message": "Upload endpoint initialized"
+    }
