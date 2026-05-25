@@ -70,6 +70,11 @@ class FaceDetector:
         os.makedirs(output_dir, exist_ok=True)
 
         count = 0
+        if len(faces) == 0:
+
+            print("No faces detected")
+
+            return False
 
         for (x, y, w, h) in faces:
 
@@ -89,6 +94,7 @@ class FaceDetector:
             print(f"Cropped face saved: {output_path}")
 
             count += 1
+            return True
 
 
 # Example Usage

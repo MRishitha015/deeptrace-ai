@@ -39,7 +39,16 @@ class DeepTracePipeline:
 
         detector.detect_faces(frame_path)
 
-        detector.crop_faces(frame_path)
+        face_found = detector.crop_faces(
+            frame_path
+        )
+
+        if not face_found:
+
+            return {
+                "error":
+                "No human face detected in video"
+            }
 
         cropped_face = (
             "outputs/cropped_faces/"
@@ -99,4 +108,5 @@ class DeepTracePipeline:
         print(report)
 
         print("\nPIPELINE COMPLETED")
+
         return report
