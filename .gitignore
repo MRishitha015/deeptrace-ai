@@ -4,4 +4,7 @@ __pycache__/
 .env
 temp/
 outputs/
-sample.mp4
+*.jpeg
+*.png
+*.png
+*.mp4
