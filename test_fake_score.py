@@ -1,7 +1,7 @@
 from analysis.region_analyser import RegionAnalyser
 from analysis.fake_score import FakeScoreCalculator
 
-image_path = "outputs/cropped_faces/face.jpeg"
+image_path = "outputs/cropped_faces/faces/frame_0000.jpg"
 
 analyser = RegionAnalyser()
 
