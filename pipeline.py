@@ -12,6 +12,8 @@ from extraction.timeline_generator import TimelineGenerator
 
 from analysis.timeline_analyser import TimelineAnalyser
 
+from analysis.report_generator import ReportGenerator
+
 
 class DeepTracePipeline:
 
@@ -52,6 +54,8 @@ class DeepTracePipeline:
             cropped_face
         )
 
+        print(analysis_result)
+
         print("\nSTEP 4 — Fake Score")
 
         calculator = FakeScoreCalculator()
@@ -81,6 +85,17 @@ class DeepTracePipeline:
             )
         )
 
-        print(final_timeline)
+        print("\nSTEP 6 — Generating Report")
+
+        report_generator = ReportGenerator()
+
+        report = report_generator.generate_report(
+            fake_result,
+            final_timeline
+        )
+
+        print("\nFINAL REPORT")
+
+        print(report)
 
         print("\nPIPELINE COMPLETED")
