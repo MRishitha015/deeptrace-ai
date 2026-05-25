@@ -1,9 +1,39 @@
-from fastapi import UploadFile, File
+from fastapi import FastAPI, UploadFile, File
+
+import shutil
+
+from pipeline import DeepTracePipeline
 
 
-@app.post("/upload")
-async def upload_video(file: UploadFile = File(...)):
+app = FastAPI()
+
+
+@app.get("/")
+def home():
+
     return {
-        "filename": file.filename,
-        "message": "Upload endpoint initialized"
+        "message": "DeepTrace AI API Running"
     }
+
+
+@app.post("/detect")
+async def detect_deepfake(
+    file: UploadFile = File(...)
+):
+
+    video_path = file.filename
+
+    with open(video_path, "wb") as buffer:
+
+        shutil.copyfileobj(
+            file.file,
+            buffer
+        )
+
+    pipeline = DeepTracePipeline(
+        video_path
+    )
+
+    report = pipeline.run()
+
+    return report

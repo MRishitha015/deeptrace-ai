@@ -99,3 +99,4 @@ class DeepTracePipeline:
         print(report)
 
         print("\nPIPELINE COMPLETED")
+        return report
