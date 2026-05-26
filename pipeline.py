@@ -12,25 +12,80 @@ from analysis.report_generator import ReportGenerator
 class DeepTracePipeline:
 
     def __init__(self, video_path):
+
         self.video_path = video_path
 
     def run(self):
 
-        print("\nSTEP 1 — Extracting Frames")
-
-        extractor = MediaExtractor(self.video_path)
-        extractor.extract_frames()
-
-        print("\nSTEP 2 — Temporal Face Analysis")
+        # CLEAN OLD OUTPUT FILES
 
         frames_folder = "outputs/frames"
 
-        frame_files = os.listdir(frames_folder)
+        cropped_folder = (
+            "outputs/cropped_faces"
+        )
+
+        os.makedirs(
+            frames_folder,
+            exist_ok=True
+        )
+
+        os.makedirs(
+            cropped_folder,
+            exist_ok=True
+        )
+
+        for file_name in os.listdir(
+            frames_folder
+        ):
+
+            file_path = os.path.join(
+                frames_folder,
+                file_name
+            )
+
+            if os.path.isfile(file_path):
+
+                os.remove(file_path)
+
+        for file_name in os.listdir(
+            cropped_folder
+        ):
+
+            file_path = os.path.join(
+                cropped_folder,
+                file_name
+            )
+
+            if os.path.isfile(file_path):
+
+                os.remove(file_path)
+
+        print("\nSTEP 1 — Extracting Frames")
+
+        extractor = MediaExtractor(
+            self.video_path
+        )
+
+        extractor.extract_frames()
+
+        print(
+            "\nSTEP 2 — Temporal Face Analysis"
+        )
+
+        frame_files = os.listdir(
+            frames_folder
+        )
 
         all_scores = []
 
+        # NEW
+        suspicious_frames = []
+
         detector = FaceDetector()
+
         analyser = RegionAnalyser()
+
         calculator = FakeScoreCalculator()
 
         for frame_file in frame_files:
@@ -40,29 +95,30 @@ class DeepTracePipeline:
                 frame_file
             )
 
-            print(f"\nProcessing {frame_file}")
+            print(
+                f"\nProcessing {frame_file}"
+            )
 
-            detector.detect_faces(frame_path)
+            detector.detect_faces(
+                frame_path
+            )
 
             face_found = detector.crop_faces(
                 frame_path
             )
 
             if not face_found:
+
                 continue
 
-            cropped_faces_folder = (
-                "outputs/cropped_faces"
-            )
-
             face_files = os.listdir(
-                cropped_faces_folder
+                cropped_folder
             )
 
             for face_file in face_files:
 
                 face_path = os.path.join(
-                    cropped_faces_folder,
+                    cropped_folder,
                     face_file
                 )
 
@@ -90,7 +146,13 @@ class DeepTracePipeline:
                     fake_result["fake_score"]
                 )
 
-        # FIX ADDED HERE
+                # NEW
+                if fake_result["fake_score"] >= 50:
+
+                    suspicious_frames.append(
+                        frame_file
+                    )
+
         if len(all_scores) == 0:
 
             return {
@@ -103,8 +165,11 @@ class DeepTracePipeline:
         )
 
         if average_fake_score >= 50:
+
             final_verdict = "FAKE"
+
         else:
+
             final_verdict = "REAL"
 
         fake_result = {
@@ -139,12 +204,15 @@ class DeepTracePipeline:
 
         report_generator = ReportGenerator()
 
+        # UPDATED
         report = report_generator.generate_report(
             fake_result,
-            final_timeline
+            final_timeline,
+            suspicious_frames
         )
 
         print("\nFINAL REPORT")
+
         print(report)
 
         print("\nPIPELINE COMPLETED")

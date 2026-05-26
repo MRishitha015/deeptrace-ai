@@ -3,7 +3,8 @@ class ReportGenerator:
     def generate_report(
         self,
         fake_result,
-        timeline
+        timeline,
+        suspicious_frames
     ):
 
         report = {
@@ -15,7 +16,10 @@ class ReportGenerator:
             fake_result["fake_score"],
 
             "timeline":
-            timeline
+            timeline,
+
+            "suspicious_frames":
+            suspicious_frames
         }
 
         return report
