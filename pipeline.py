@@ -1,114 +1,110 @@
 import os
 
 from extraction.media_extractor import MediaExtractor
-
 from analysis.face_detector import FaceDetector
-
 from analysis.region_analyser import RegionAnalyser
-
 from analysis.fake_score import FakeScoreCalculator
-
 from extraction.timeline_generator import TimelineGenerator
-
 from analysis.timeline_analyser import TimelineAnalyser
-
 from analysis.report_generator import ReportGenerator
 
 
 class DeepTracePipeline:
 
     def __init__(self, video_path):
-
         self.video_path = video_path
 
     def run(self):
 
         print("\nSTEP 1 — Extracting Frames")
 
-        extractor = MediaExtractor(
-            self.video_path
-        )
-
+        extractor = MediaExtractor(self.video_path)
         extractor.extract_frames()
 
-        frame_path = (
-            "outputs/frames/frame_0000.jpg"
-        )
+        print("\nSTEP 2 — Temporal Face Analysis")
 
-        print("\nSTEP 2 — Detecting Faces")
+        frames_folder = "outputs/frames"
 
-        detector = FaceDetector()
-
-        detector.detect_faces(frame_path)
-
-        face_found = detector.crop_faces(
-            frame_path
-        )
-
-        if not face_found:
-
-            return {
-                "error":
-                "No human face detected in video"
-            }
-
-        print("\nSTEP 3 — Region Analysis")
-
-        cropped_faces_folder = (
-            "outputs/cropped_faces"
-        )
-
-        face_files = os.listdir(
-            cropped_faces_folder
-        )
+        frame_files = os.listdir(frames_folder)
 
         all_scores = []
 
+        detector = FaceDetector()
         analyser = RegionAnalyser()
-
         calculator = FakeScoreCalculator()
 
-        for face_file in face_files:
+        for frame_file in frame_files:
 
-            face_path = os.path.join(
-                cropped_faces_folder,
-                face_file
+            frame_path = os.path.join(
+                frames_folder,
+                frame_file
             )
 
-            analysis_result = (
-                analyser.analyse_image(
-                    face_path
+            print(f"\nProcessing {frame_file}")
+
+            detector.detect_faces(frame_path)
+
+            face_found = detector.crop_faces(
+                frame_path
+            )
+
+            if not face_found:
+                continue
+
+            cropped_faces_folder = (
+                "outputs/cropped_faces"
+            )
+
+            face_files = os.listdir(
+                cropped_faces_folder
+            )
+
+            for face_file in face_files:
+
+                face_path = os.path.join(
+                    cropped_faces_folder,
+                    face_file
                 )
-            )
 
-            print(
-                f"\nAnalysis for {face_file}"
-            )
-
-            print(analysis_result)
-
-            fake_result = (
-                calculator.calculate_score(
-                    analysis_result
+                analysis_result = (
+                    analyser.analyse_image(
+                        face_path
+                    )
                 )
-            )
 
-            print(fake_result)
+                print(
+                    f"\nAnalysis for {face_file}"
+                )
 
-            all_scores.append(
-                fake_result["fake_score"]
-            )
+                print(analysis_result)
+
+                fake_result = (
+                    calculator.calculate_score(
+                        analysis_result
+                    )
+                )
+
+                print(fake_result)
+
+                all_scores.append(
+                    fake_result["fake_score"]
+                )
+
+        # FIX ADDED HERE
+        if len(all_scores) == 0:
+
+            return {
+                "error":
+                "No analyzable faces found"
+            }
 
         average_fake_score = int(
             sum(all_scores) / len(all_scores)
         )
 
         if average_fake_score >= 50:
-
             final_verdict = "FAKE"
-
         else:
-
             final_verdict = "REAL"
 
         fake_result = {
@@ -149,7 +145,6 @@ class DeepTracePipeline:
         )
 
         print("\nFINAL REPORT")
-
         print(report)
 
         print("\nPIPELINE COMPLETED")
