@@ -31,7 +31,9 @@ class DeepTracePipeline:
 
         extractor.extract_frames()
 
-        frame_path = "outputs/frames/frame_0000.jpg"
+        frame_path = (
+            "outputs/frames/frame_0000.jpg"
+        )
 
         print("\nSTEP 2 — Detecting Faces")
 
@@ -50,30 +52,73 @@ class DeepTracePipeline:
                 "No human face detected in video"
             }
 
-        cropped_face = (
-            "outputs/cropped_faces/"
-            "frame_0000_face_0.jpg"
+        print("\nSTEP 3 — Region Analysis")
+
+        cropped_faces_folder = (
+            "outputs/cropped_faces"
         )
 
-        print("\nSTEP 3 — Region Analysis")
+        face_files = os.listdir(
+            cropped_faces_folder
+        )
+
+        all_scores = []
 
         analyser = RegionAnalyser()
 
-        analysis_result = analyser.analyse_image(
-            cropped_face
-        )
-
-        print(analysis_result)
-
-        print("\nSTEP 4 — Fake Score")
-
         calculator = FakeScoreCalculator()
 
-        fake_result = calculator.calculate_score(
-            analysis_result
+        for face_file in face_files:
+
+            face_path = os.path.join(
+                cropped_faces_folder,
+                face_file
+            )
+
+            analysis_result = (
+                analyser.analyse_image(
+                    face_path
+                )
+            )
+
+            print(
+                f"\nAnalysis for {face_file}"
+            )
+
+            print(analysis_result)
+
+            fake_result = (
+                calculator.calculate_score(
+                    analysis_result
+                )
+            )
+
+            print(fake_result)
+
+            all_scores.append(
+                fake_result["fake_score"]
+            )
+
+        average_fake_score = int(
+            sum(all_scores) / len(all_scores)
         )
 
-        print(fake_result)
+        if average_fake_score >= 50:
+
+            final_verdict = "FAKE"
+
+        else:
+
+            final_verdict = "REAL"
+
+        fake_result = {
+
+            "fake_score":
+            average_fake_score,
+
+            "verdict":
+            final_verdict
+        }
 
         print("\nSTEP 5 — Timeline Analysis")
 
