@@ -79,8 +79,9 @@ class DeepTracePipeline:
 
         all_scores = []
 
-        # NEW
         suspicious_frames = []
+
+        frame_confidences = []
 
         detector = FaceDetector()
 
@@ -146,12 +147,47 @@ class DeepTracePipeline:
                     fake_result["fake_score"]
                 )
 
-                # NEW
-                if fake_result["fake_score"] >= 50:
+                # CONFIDENCE ANALYSIS
+
+                score = fake_result[
+                    "fake_score"
+                ]
+
+                if score >= 75:
+
+                    confidence = "HIGH"
+
+                elif score >= 50:
+
+                    confidence = "MEDIUM"
+
+                else:
+
+                    confidence = "LOW"
+
+                frame_data = {
+
+                    "frame":
+                    frame_file,
+
+                    "score":
+                    score,
+
+                    "confidence":
+                    confidence
+                }
+
+                frame_confidences.append(
+                    frame_data
+                )
+
+                if score >= 50:
 
                     suspicious_frames.append(
-                        frame_file
+                        frame_data
                     )
+
+        # PREVENT DIVISION BY ZERO
 
         if len(all_scores) == 0:
 
@@ -183,7 +219,9 @@ class DeepTracePipeline:
 
         print("\nSTEP 5 — Timeline Analysis")
 
-        timeline_generator = TimelineGenerator()
+        timeline_generator = (
+            TimelineGenerator()
+        )
 
         timeline = (
             timeline_generator.generate_timeline(
@@ -191,7 +229,9 @@ class DeepTracePipeline:
             )
         )
 
-        timeline_analyser = TimelineAnalyser()
+        timeline_analyser = (
+            TimelineAnalyser()
+        )
 
         final_timeline = (
             timeline_analyser.analyse_timeline(
@@ -202,13 +242,17 @@ class DeepTracePipeline:
 
         print("\nSTEP 6 — Generating Report")
 
-        report_generator = ReportGenerator()
+        report_generator = (
+            ReportGenerator()
+        )
 
-        # UPDATED
-        report = report_generator.generate_report(
-            fake_result,
-            final_timeline,
-            suspicious_frames
+        report = (
+            report_generator.generate_report(
+                fake_result,
+                final_timeline,
+                suspicious_frames,
+                frame_confidences
+            )
         )
 
         print("\nFINAL REPORT")

@@ -4,7 +4,8 @@ class ReportGenerator:
         self,
         fake_result,
         timeline,
-        suspicious_frames
+        suspicious_frames,
+        frame_confidences
     ):
 
         report = {
@@ -19,7 +20,10 @@ class ReportGenerator:
             timeline,
 
             "suspicious_frames":
-            suspicious_frames
+            suspicious_frames,
+
+            "frame_confidences":
+            frame_confidences
         }
 
         return report
