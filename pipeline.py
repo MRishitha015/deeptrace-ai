@@ -115,13 +115,16 @@ class DeepTracePipeline:
             face_files = os.listdir(
                 cropped_folder
             )
+            total_frames_processed = 0
 
+            total_faces_analyzed = 0
             for face_file in face_files:
 
                 face_path = os.path.join(
                     cropped_folder,
                     face_file
                 )
+                total_frames_processed += 1
 
                 analysis_result = (
                     analyser.analyse_image(
@@ -246,13 +249,13 @@ class DeepTracePipeline:
             ReportGenerator()
         )
 
-        report = (
-            report_generator.generate_report(
-                fake_result,
-                final_timeline,
-                suspicious_frames,
-                frame_confidences
-            )
+        report = report_generator.generate_report(
+            fake_result,
+            final_timeline,
+            suspicious_frames,
+            frame_confidences,
+            total_frames_processed,
+            total_faces_analyzed
         )
 
         print("\nFINAL REPORT")

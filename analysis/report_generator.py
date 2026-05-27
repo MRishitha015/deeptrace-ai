@@ -5,7 +5,9 @@ class ReportGenerator:
         fake_result,
         timeline,
         suspicious_frames,
-        frame_confidences
+        frame_confidences,
+        total_frames_processed,
+        total_faces_analyzed
     ):
 
         report = {
@@ -23,7 +25,13 @@ class ReportGenerator:
             suspicious_frames,
 
             "frame_confidences":
-            frame_confidences
+            frame_confidences,
+
+            "total_frames_processed":
+            total_frames_processed,
+
+            "total_faces_analyzed":
+            total_faces_analyzed
         }
 
         return report
