@@ -5,7 +5,11 @@ import shutil
 from pipeline import DeepTracePipeline
 
 
-app = FastAPI()
+app = FastAPI(
+    title="DeepTrace AI",
+    description="AI-powered deepfake forensic detection system",
+    version="1.0.0"
+)
 
 
 @app.get("/")
