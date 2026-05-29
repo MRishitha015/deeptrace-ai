@@ -41,3 +41,11 @@ async def detect_deepfake(
     report = pipeline.run()
 
     return report
+
+
+@app.get("/health")
+def health_check():
+
+    return {
+        "status": "running"
+    }
