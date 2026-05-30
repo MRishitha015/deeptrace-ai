@@ -49,3 +49,11 @@ def health_check():
     return {
         "status": "running"
     }
+
+
+@app.get("/")
+def home():
+
+    return {
+        "message": "DeepTrace AI API is running"
+    }
