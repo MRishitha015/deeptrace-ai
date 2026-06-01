@@ -55,5 +55,5 @@ def health_check():
 def home():
 
     return {
-        "message": "DeepTrace AI API is running"
+        "message": "API is running"
     }
