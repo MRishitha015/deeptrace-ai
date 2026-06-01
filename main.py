@@ -12,6 +12,15 @@ app = FastAPI(
 )
 
 
+@app.get("/info")
+def info():
+
+    return {
+        "project": "DeepTrace AI",
+        "type": "Deepfake Detection System"
+    }
+
+
 @app.get("/")
 def home():
 
