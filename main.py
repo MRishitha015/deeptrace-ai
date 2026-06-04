@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
-
 import shutil
+from datetime import datetime
 
 from pipeline import DeepTracePipeline
 
@@ -12,20 +12,30 @@ app = FastAPI(
 )
 
 
-@app.get("/info")
-def info():
-
-    return {
-        "project": "DeepTrace AI",
-        "type": "Deepfake Detection System"
-    }
-
-
 @app.get("/")
 def home():
 
     return {
         "message": "DeepTrace AI API Running"
+    }
+
+
+@app.get("/health")
+def health_check():
+
+    return {
+        "status": "running",
+        "timestamp": str(datetime.now())
+    }
+
+
+@app.get("/info")
+def info():
+
+    return {
+        "project": "DeepTrace AI",
+        "type": "Deepfake Detection System",
+        "version": "1.0.0"
     }
 
 
@@ -50,19 +60,3 @@ async def detect_deepfake(
     report = pipeline.run()
 
     return report
-
-
-@app.get("/health")
-def health_check():
-
-    return {
-        "status": "running"
-    }
-
-
-@app.get("/")
-def home():
-
-    return {
-        "message": "API is running"
-    }
