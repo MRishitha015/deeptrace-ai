@@ -1,16 +1,31 @@
+
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
 import shutil
-from datetime import datetime
+import os
 
 from pipeline import DeepTracePipeline
 
 
-app = FastAPI(
-    title="DeepTrace AI",
-    description="AI-powered deepfake forensic detection system",
-    version="1.0.0"
+app = FastAPI()
+
+
+# -------------------------------------
+# Enable CORS
+# -------------------------------------
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
+
+# -------------------------------------
+# Home Route
+# -------------------------------------
 
 @app.get("/")
 def home():
@@ -20,43 +35,110 @@ def home():
     }
 
 
-@app.get("/health")
-def health_check():
-
-    return {
-        "status": "running",
-        "timestamp": str(datetime.now())
-    }
-
-
-@app.get("/info")
-def info():
-
-    return {
-        "project": "DeepTrace AI",
-        "type": "Deepfake Detection System",
-        "version": "1.0.0"
-    }
-
+# -------------------------------------
+# Detect Route
+# -------------------------------------
 
 @app.post("/detect")
-async def detect_deepfake(
+async def detect(
     file: UploadFile = File(...)
 ):
 
-    video_path = file.filename
+    # ---------------------------------
+    # Create uploads folder
+    # ---------------------------------
 
-    with open(video_path, "wb") as buffer:
+    upload_folder = "uploads"
+
+    os.makedirs(
+        upload_folder,
+        exist_ok=True
+    )
+
+    # ---------------------------------
+    # Save uploaded file
+    # ---------------------------------
+
+    file_path = os.path.join(
+        upload_folder,
+        file.filename
+    )
+
+    with open(
+        file_path,
+        "wb"
+    ) as buffer:
 
         shutil.copyfileobj(
             file.file,
             buffer
         )
 
-    pipeline = DeepTracePipeline(
-        video_path
+    # ---------------------------------
+    # Supported extensions
+    # ---------------------------------
+
+    image_extensions = (
+        ".jpg",
+        ".jpeg",
+        ".png"
     )
 
-    report = pipeline.run()
+    video_extensions = (
+        ".mp4",
+        ".avi",
+        ".mov",
+        ".mkv"
+    )
 
-    return report
+    filename = file.filename.lower()
+
+    # ---------------------------------
+    # IMAGE
+    # ---------------------------------
+
+    if filename.endswith(
+        image_extensions
+    ):
+
+        return {
+
+            "message":
+            "Image uploaded successfully",
+
+            "file_path":
+            file_path,
+
+            "type":
+            "image"
+
+        }
+
+    # ---------------------------------
+    # VIDEO
+    # ---------------------------------
+
+    elif filename.endswith(
+        video_extensions
+    ):
+
+        pipeline = DeepTracePipeline(
+            file_path
+        )
+
+        report = pipeline.run()
+
+        return report
+
+    # ---------------------------------
+    # UNSUPPORTED FILE
+    # ---------------------------------
+
+    else:
+
+        return {
+
+            "error":
+            "Unsupported file format"
+
+        }

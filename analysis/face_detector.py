@@ -1,5 +1,5 @@
-import cv2
 import os
+import cv2
 
 
 class FaceDetector:
@@ -51,6 +51,8 @@ class FaceDetector:
         print(f"Detected {len(faces)} face(s)")
         print(f"Saved: {output_path}")
 
+        return faces
+
     # Crop detected faces
     def crop_faces(self, image_path):
 
@@ -70,6 +72,7 @@ class FaceDetector:
         os.makedirs(output_dir, exist_ok=True)
 
         count = 0
+
         if len(faces) == 0:
 
             print("No faces detected")
@@ -78,7 +81,7 @@ class FaceDetector:
 
         for (x, y, w, h) in faces:
 
-            face_crop = image[y:y+h, x:x+w]
+            face_crop = image[y:y + h, x:x + w]
 
             filename = os.path.basename(image_path)
 
@@ -94,16 +97,5 @@ class FaceDetector:
             print(f"Cropped face saved: {output_path}")
 
             count += 1
-            return True
 
-
-# Example Usage
-if __name__ == "__main__":
-
-    detector = FaceDetector()
-
-    image_path = "test.jpg"
-
-    detector.detect_faces(image_path)
-
-    detector.crop_faces(image_path)
+        return True

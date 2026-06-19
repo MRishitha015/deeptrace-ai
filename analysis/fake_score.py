@@ -2,10 +2,9 @@ class FakeScoreCalculator:
 
     def calculate_score(
         self,
-        analysis_result
+        analysis_result,
+        face_count
     ):
-
-        fake_score = 0
 
         sharpness = (
             analysis_result[
@@ -19,35 +18,24 @@ class FakeScoreCalculator:
             ]
         )
 
-        edge_score = (
-            analysis_result[
-                "edge_score"
-            ]
-        )
+        # Updated scoring logic
+        score = 0
 
-        texture_score = (
-            analysis_result[
-                "texture_score"
-            ]
-        )
+        if sharpness < 100:
 
-        if sharpness < 80:
+            score += 40
 
-            fake_score += 30
+        if brightness < 80:
 
-        if brightness < 50:
+            score += 30
 
-            fake_score += 10
+        if face_count > 1:
 
-        if edge_score < 20:
+            score += 10
 
-            fake_score += 30
+        score = min(score, 100)
 
-        if texture_score < 30:
-
-            fake_score += 30
-
-        if fake_score >= 50:
+        if score >= 50:
 
             verdict = "FAKE"
 
@@ -58,7 +46,7 @@ class FakeScoreCalculator:
         return {
 
             "fake_score":
-            fake_score,
+            score,
 
             "verdict":
             verdict
